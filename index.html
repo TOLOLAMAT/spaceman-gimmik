@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,21 +17,14 @@
     h1 { margin-top: 20px; }
     .multiplier { font-size: 32px; margin-top: 10px; }
     .rocket {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 64px;
+      position: absolute; bottom: 20px; left: 50%;
+      transform: translateX(-50%); font-size: 64px;
       transition: bottom 0.2s linear;
     }
     .status { font-size: 20px; margin-top: 10px; }
     button {
-      font-size: 16px;
-      padding: 10px 20px;
-      margin: 5px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
+      font-size: 16px; padding: 10px 20px; margin: 5px;
+      border: none; border-radius: 10px; cursor: pointer;
     }
     #play { background-color: orange; }
     #btnFull { background-color: #0f0; }
@@ -60,11 +52,11 @@
     <label><input type="radio" name="bet" value="100"> $100</label>
   </div>
 
-  <button onclick="startGame()" id="play">Pasang taruhan</button>
+  <button onclick="startCountdown()" id="play">Pasang taruhan</button>
   <button onclick="cashOutFull()" id="btnFull" style="display: none;">Cairkan 💰</button>
   <button onclick="cashOutHalf()" id="btnHalf" style="display: none;">Cairkan 50%</button>
   <button onclick="restartGame()" id="restart" style="display: none;">Taruhan lagi</button>
-  <button onclick="resetMoney()" id="resetMoney">Reset Uang 💰</button>
+  <button onclick="resetMoney()" id="resetMoney">Reset Uang 🧨</button>
 
   <div class="status" id="status">Klik Play untuk memulai permainan</div>
   <div class="rocket" id="rocket">🚀</div>
@@ -101,14 +93,24 @@
       return 1;
     }
 
-    function startGame() {
+    function startCountdown() {
       bet = getSelectedBet();
-
       if (money < bet) {
         status.innerText = "❌ Uang kamu tidak cukup untuk taruhan ini! silahkan deposit!";
         return;
       }
 
+      status.innerText = "⌛ Permainan akan dimulai dalam 5 detik...";
+      playBtn.disabled = true;
+      setTimeout(() => {
+        status.innerText = "⌛ Menunggu peserta lain memasang taruhan (5 detik)...";
+        setTimeout(() => {
+          startGame();
+        }, 5000);
+      }, 5000);
+    }
+
+    function startGame() {
       money -= bet;
       updateMoney();
 
@@ -142,30 +144,26 @@
     function cashOutFull() {
       if (crashed) return;
       clearInterval(interval);
-
       let winAmount = bet * multiplier;
       money += winAmount;
       updateMoney();
-
-      status.innerText = ` anda mendapatkan taruhan $${bet}, multiplier x${multiplier.toFixed(2)}, kamu menang $${winAmount.toFixed(2)} (100%)`;
+      status.innerText = `🎉 Kamu menang $${winAmount.toFixed(2)} (100%) dari taruhan $${bet} pada multiplier x${multiplier.toFixed(2)}`;
       endGame();
     }
 
     function cashOutHalf() {
       if (crashed) return;
-
       let winAmount = bet * multiplier * 0.5;
       money += winAmount;
       updateMoney();
-
-      status.innerText = `mencairkan $${winAmount.toFixed(2)} (50%) cairkan taruhan $${bet} di multiplier x${multiplier.toFixed(2)}. Permainan lanjut!`;
+      status.innerText = `⚡️ Cairkan 50% = $${winAmount.toFixed(2)} dari $${bet} di multiplier x${multiplier.toFixed(2)}. Game lanjut!`;
     }
 
     function crash() {
       crashed = true;
       clearInterval(interval);
       rocket.innerText = "💥";
-      status.innerText = `🥀 kamu kalah saat ini kehilangan $${bet.toFixed(2)}.`;
+      status.innerText = `😵 Kamu kalah dan kehilangan $${bet.toFixed(2)}.`;
       endGame();
     }
 
@@ -186,6 +184,7 @@
       multiplierText.innerText = "x0.00";
       status.innerText = "Klik Play untuk memulai permainan";
       rocket.style.bottom = "20px";
+      playBtn.disabled = false;
     }
 
     function resetMoney() {
@@ -196,6 +195,5 @@
 
     updateMoney();
   </script>
-
 </body>
 </html>
