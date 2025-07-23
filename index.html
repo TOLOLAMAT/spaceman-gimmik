@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spaceman gimmik </title>
+  <style>
+    body {
+      background: linear-gradient(to top, #000, #222);
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      height: 100vh;
+      overflow: hidden;
+      margin: 0;
+    }
+    h1 { margin-top: 20px; }
+    .multiplier { font-size: 32px; margin-top: 10px; }
+    .rocket {
+      position: absolute; bottom: 20px; left: 50%;
+      transform: translateX(-50%); font-size: 64px;
+      transition: bottom 0.2s linear;
+    }
+    .status { font-size: 20px; margin-top: 10px; }
+    button {
+      font-size: 16px; padding: 10px 20px; margin: 5px;
+      border: none; border-radius: 10px; cursor: pointer;
+    }
+    #play { background-color: orange; }
+    #btnFull { background-color: #0f0; }
+    #btnHalf { background-color: #4caf50; }
+    #restart { background-color: #00c8ff; }
+    #resetMoney { background-color: red; color: white; }
+    #money { font-size: 20px; margin-top: 10px; color: #0f0; }
+    .bet-options { margin-top: 10px; }
+    .bet-options label { margin: 0 5px; }
+  </style>
+</head>
+<body>
+
+  <h1>🚀 Spaceman gimmik</h1>
+  <div class="multiplier" id="multiplier">x0.00</div>
+  <div id="money">YOUR MONEY: $500.00</div>
+
+  <div class="bet-options">
+    <label><input type="radio" name="bet" value="1" checked> $1</label>
+    <label><input type="radio" name="bet" value="5"> $5</label>
+    <label><input type="radio" name="bet" value="50"> $50</label>
+    <label><input type="radio" name="bet" value="100"> $100</label>
+    <label><input type="radio" name="bet" value="150"> $150</label>
+    <label><input type="radio" name="bet" value="200"> $200</label>
+    <label><input type="radio" name="bet" value="250"> $250</label>
+    <label><input type="radio" name="bet" value="300"> $300</label>
+    <label><input type="radio" name="bet" value="350"> $350</label>
+    <label><input type="radio" name="bet" value="400"> $400</label>
+    <label><input type="radio" name="bet" value="450"> $450</label>
+    <label><input type="radio" name="bet" value="500"> $500</label>
+    <label><input type="radio" name="bet" value="550"> $550</label>
+    <label><input type="radio" name="bet" value="600"> $600</label>
+  </div>
+
+  <button onclick="startCountdown()" id="play">Pasang taruhan</button>
+  <button onclick="cashOutFull()" id="btnFull" style="display: none;">Cairkan 💰</button>
+  <button onclick="cashOutHalf()" id="btnHalf" style="display: none;">Cairkan 50%</button>
+  <button onclick="restartGame()" id="restart" style="display: none;">Taruhan lagi</button>
+  <button onclick="resetMoney()" id="resetMoney">Reset Uang 🧨</button>
+
+  <div class="status" id="status">Klik Play untuk memulai permainan</div>
+  <div class="rocket" id="rocket">🚀</div>
+
+  <script>
+    let multiplier = 0.0;
+    let rocketPos, crashed, interval;
+    let money = 500;
+    let bet = 1;
+
+    const rocket = document.getElementById("rocket");
+    const status = document.getElementById("status");
+    const multiplierText = document.getElementById("multiplier");
+    const btnFull = document.getElementById("btnFull");
+    const btnHalf = document.getElementById("btnHalf");
+    const restartBtn = document.getElementById("restart");
+    const playBtn = document.getElementById("play");
+    const moneyDisplay = document.getElementById("money");
+
+    if (localStorage.getItem("saldo")) {
+      money = parseFloat(localStorage.getItem("saldo"));
+    }
+
+    function updateMoney() {
+      moneyDisplay.innerText = "YOUR MONEY: $" + money.toFixed(2);
+      localStorage.setItem("saldo", money.toFixed(2));
+    }
+
+    function getSelectedBet() {
+      const radios = document.getElementsByName("bet");
+      for (let radio of radios) {
+        if (radio.checked) return parseFloat(radio.value);
+      }
+      return 1;
+    }
+
+    function startCountdown() {
+      bet = getSelectedBet();
+      if (money < bet) {
+        status.innerText = "❌ Uang kamu tidak cukup untuk taruhan ini! silahkan deposit!";
+        return;
+      }
+
+      status.innerText = "⌛ Permainan akan dimulai dalam 5 detik...";
+      playBtn.disabled = true;
+      setTimeout(() => {
+        status.innerText = "⌛ Menunggu peserta lain memasang taruhan (5 detik)...";
+        setTimeout(() => {
+          startGame();
+        }, 5000);
+      }, 5000);
+    }
+
+    function startGame() {
+      money -= bet;
+      updateMoney();
+
+      playBtn.style.display = "none";
+      btnFull.style.display = "inline-block";
+      btnHalf.style.display = "inline-block";
+      restartBtn.style.display = "none";
+
+      multiplier = 0.0;
+      rocketPos = 20;
+      crashed = false;
+      rocket.innerText = "🚀";
+      rocket.style.bottom = rocketPos + "px";
+      multiplierText.innerText = "x0.00";
+      status.innerText = "Tekan tombol cairkan sebelum tertabrak!";
+      btnFull.disabled = false;
+      btnHalf.disabled = false;
+
+      interval = setInterval(() => {
+        multiplier += 0.1;
+        rocketPos += 10;
+        multiplierText.innerText = "x" + multiplier.toFixed(2);
+        rocket.style.bottom = rocketPos + "px";
+
+        if (Math.random() < 0.05 || rocketPos > window.innerHeight + 100) {
+          crash();
+        }
+      }, 200);
+    }
+
+    function cashOutFull() {
+      if (crashed) return;
+      clearInterval(interval);
+      let winAmount = bet * multiplier;
+      money += winAmount;
+      updateMoney();
+      status.innerText = ` dicairkan $${winAmount.toFixed(2)} (100%) dari taruhan $${bet} pada multiplier x${multiplier.toFixed(2)}`;
+      endGame();
+    }
+
+    function cashOutHalf() {
+      if (crashed) return;
+      let winAmount = bet * multiplier * 0.5;
+      money += winAmount;
+      updateMoney();
+      status.innerText = `⚡️ Cairkan 50% = $${winAmount.toFixed(2)} dari $${bet} di multiplier x${multiplier.toFixed(2)}. Game lanjut!`;
+    }
+
+    function crash() {
+      crashed = true;
+      clearInterval(interval);
+      rocket.innerText = "💥";
+      status.innerText = ` Tertabrak dan kehilangan $${bet.toFixed(2)}.`;
+      endGame();
+    }
+
+    function endGame() {
+      btnFull.disabled = true;
+      btnHalf.disabled = true;
+      btnFull.style.background = "#888";
+      btnHalf.style.background = "#888";
+      restartBtn.style.display = "inline-block";
+    }
+
+    function restartGame() {
+      rocket.innerText = "🚀";
+      playBtn.style.display = "inline-block";
+      btnFull.style.display = "none";
+      btnHalf.style.display = "none";
+      restartBtn.style.display = "none";
+      multiplierText.innerText = "x0.00";
+      status.innerText = "Klik Play untuk memulai permainan";
+      rocket.style.bottom = "20px";
+      playBtn.disabled = false;
+    }
+
+    function resetMoney() {
+      money = 500;
+      updateMoney();
+      alert("Uang kamu sudah di-reset ke $500.");
+    }
+
+    updateMoney();
+  </script>
+</body>
+</html>
