@@ -44,12 +44,19 @@
 
   <div class="bet-options">
     <label><input type="radio" name="bet" value="1" checked> $1</label>
-    <label><input type="radio" name="bet" value="2"> $2</label>
-    <label><input type="radio" name="bet" value="3"> $3</label>
-    <label><input type="radio" name="bet" value="4"> $4</label>
     <label><input type="radio" name="bet" value="5"> $5</label>
     <label><input type="radio" name="bet" value="50"> $50</label>
     <label><input type="radio" name="bet" value="100"> $100</label>
+    <label><input type="radio" name="bet" value="150"> $150</label>
+    <label><input type="radio" name="bet" value="200"> $200</label>
+    <label><input type="radio" name="bet" value="250"> $250</label>
+    <label><input type="radio" name="bet" value="300"> $300</label>
+    <label><input type="radio" name="bet" value="350"> $350</label>
+    <label><input type="radio" name="bet" value="400"> $400</label>
+    <label><input type="radio" name="bet" value="450"> $450</label>
+    <label><input type="radio" name="bet" value="500"> $500</label>
+    <label><input type="radio" name="bet" value="550"> $550</label>
+    <label><input type="radio" name="bet" value="600"> $600</label>
   </div>
 
   <button onclick="startCountdown()" id="play">Pasang taruhan</button>
@@ -125,7 +132,7 @@
       rocket.innerText = "🚀";
       rocket.style.bottom = rocketPos + "px";
       multiplierText.innerText = "x0.00";
-      status.innerText = "Tekan tombol cairkan sebelum meledak!";
+      status.innerText = "Tekan tombol cairkan sebelum tertabrak!";
       btnFull.disabled = false;
       btnHalf.disabled = false;
 
@@ -147,7 +154,7 @@
       let winAmount = bet * multiplier;
       money += winAmount;
       updateMoney();
-      status.innerText = `🎉 Kamu menang $${winAmount.toFixed(2)} (100%) dari taruhan $${bet} pada multiplier x${multiplier.toFixed(2)}`;
+      status.innerText = ` dicairkan $${winAmount.toFixed(2)} (100%) dari taruhan $${bet} pada multiplier x${multiplier.toFixed(2)}`;
       endGame();
     }
 
@@ -163,7 +170,7 @@
       crashed = true;
       clearInterval(interval);
       rocket.innerText = "💥";
-      status.innerText = `😵 Kamu kalah dan kehilangan $${bet.toFixed(2)}.`;
+      status.innerText = ` Tertabrak dan kehilangan $${bet.toFixed(2)}.`;
       endGame();
     }
 
